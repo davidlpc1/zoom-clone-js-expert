@@ -1,6 +1,7 @@
 class View {
     constructor() {
-        this.recorderBtn = document.getElementById('record')
+        this.recorderBtn = document.getElementById("record")
+        this.leaveBtn = document.getElementById("leave")
     }
 
     createVideoElement({ muted = true, src, srcObject }) {
@@ -15,18 +16,18 @@ class View {
             Util.sleep(200).then(_ => video.play())
         }
 
-        if(srcObject) {
+        if (srcObject) {
             video.addEventListener("loadedmetadata", _ => video.play())
         }
 
         return video
     }
 
-    renderVideo({ userId, stream = null, url = null, isCurrentId = false ,muted=true}) {
-        const video = this.createVideoElement({ 
-            src: url, 
-            muted,
-            srcObject: stream 
+    renderVideo({ userId, stream = null, url = null, isCurrentId = false}) {
+        const video = this.createVideoElement({
+            muted: isCurrentId,
+            src: url,
+            srcObject: stream
         })
         this.appendToHTMLTree(userId, video, isCurrentId)
     }
@@ -44,32 +45,43 @@ class View {
         videoGrid.append(div)
     }
 
-    setParticipants(count){
+    setParticipants(count) {
         const myself = 1
         const participants = document.getElementById('participants')
         participants.innerHTML = (count + myself)
     }
 
-    removeVideoElement(id){
+    removeVideoElement(id) {
         const element = document.getElementById(id)
         element.remove()
     }
-
-    toggleRecordingButtonColor(isActive = true){
+    toggleRecordingButtonColor(isActive = true) {
         this.recorderBtn.style.color = isActive ? 'red' : 'white'
     }
-
-    onRecordClick (command) {
+    onRecordClick(command) {
         this.recordingEnabled = false
         return () => {
-          const isActive = this.recordingEnabled = !this.recordingEnabled
-          
-          command(this.recordingEnabled )
-          this.toggleRecordingButtonColor(isActive)
+            const isActive = this.recordingEnabled = !this.recordingEnabled
+            
+            command(this.recordingEnabled)
+            this.toggleRecordingButtonColor(isActive)
         }
     }
 
-    configureRecordButton(command){
+    onLeaveClick(command) {
+        return async() => {
+            command()
+
+            await Util.sleep(1000)
+            window.location = '/pages/home'
+        }
+    }
+
+    configureRecordButton(command) {
         this.recorderBtn.addEventListener('click', this.onRecordClick(command))
+    }
+
+    configureLeaveButton(command) {
+        this.leaveBtn.addEventListener('click', this.onLeaveClick(command))
     }
 }
