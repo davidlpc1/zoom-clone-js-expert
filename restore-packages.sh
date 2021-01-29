@@ -1,6 +1,6 @@
 rm -rf **/**/node-modules
-cp -r aula02 aula03
-cd aula03
+cp -r aula03 aula04
+cd aula04
 for item in `ls`;
 do 
     echo $item
